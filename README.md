@@ -38,6 +38,7 @@ Crafo is a platform designed to streamline the management of collaborative works
 
 ## 📂 **Project Structure**
 
+```plaintext
 Crafo/
 ├── backend/             # Node.js API
 ├── frontend/            # Vue.js application
@@ -46,7 +47,7 @@ Crafo/
 ├── tests/               # Automated tests
 ├── README.md            # Project documentation
 └── .env.example         # Environment variable template
-
+```
 ---
 
 ## ⚙️ **Setup**

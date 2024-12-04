@@ -240,7 +240,28 @@ paths:
           description: User successfully registered.
         404:
           description: Workshop or user not found.
-  
+    get:
+      tags:
+        - Workshops
+      summary: Retrieve attendees of a workshop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A list of attendees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        404:
+          description: Workshop not found
+
   /workshops/{id}/stats:
     get:
       tags:
@@ -344,29 +365,6 @@ paths:
       responses:
         204:
           description: Workshop successfully deleted
-        404:
-          description: Workshop not found
-
-  /workshops/{id}/attendees:
-    get:
-      tags:
-        - Workshops
-      summary: Retrieve attendees of a workshop
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: A list of attendees
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
         404:
           description: Workshop not found
 
