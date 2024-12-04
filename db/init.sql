@@ -16,7 +16,6 @@ CREATE TABLE workshops (
     description TEXT NOT NULL,
     date TIMESTAMP NOT NULL,
     location VARCHAR(255),
-    image TEXT,
     creator_id INT REFERENCES users(id),
     max_capacity INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -28,6 +27,7 @@ CREATE TABLE photos (
     url TEXT NOT NULL,
     uploaded_by INT REFERENCES users(id),
     workshop_id INT REFERENCES workshops(id),
+    type VARCHAR(50) NOT NULL CHECK (type IN ('description', 'attendee')),
     likes_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -54,6 +54,17 @@ CREATE TABLE notifications (
     message TEXT NOT NULL,
     workshop_id INT REFERENCES workshops(id),
     photo_id INT REFERENCES photos(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_read BOOLEAN DEFAULT FALSE
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_roles (
+    user_id INT REFERENCES users(id),
+    role_id INT REFERENCES roles(id),
+    PRIMARY KEY (user_id, role_id)
 );

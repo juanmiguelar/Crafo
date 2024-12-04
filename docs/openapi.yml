@@ -1,0 +1,914 @@
+openapi: 3.0.0
+info:
+  title: Crafo API
+  description: API documentation for Crafo, a platform for collaborative workshop management.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+tags:
+  - name: Users
+    description: Endpoints related to user management
+  - name: Workshops
+    description: Endpoints related to workshop management
+  - name: Photos
+    description: Endpoints related to photo management
+  - name: Notifications
+    description: Endpoints related to notifications
+  - name: Comments
+    description: Endpoints related to comments
+  - name: System
+    description: Endpoints related to System
+
+paths:
+  /health:
+    get:
+      tags:
+        - System
+      summary: Check server health
+      responses:
+        200:
+          description: Server is healthy.
+        503:
+          description: Server is down.
+
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        201:
+          description: User successfully created
+        400:
+          description: Invalid input
+
+  /roles:
+    get:
+      tags:
+        - Users
+      summary: Retrieve all roles
+      responses:
+        200:
+          description: A list of roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  /users/{id}:
+    put:
+      tags:
+        - Users
+      summary: Update a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        200:
+          description: User successfully updated
+        400:
+          description: Invalid input
+        404:
+          description: User not found
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: User successfully deleted
+        404:
+          description: User not found
+
+  /users/login:
+    post:
+      tags:
+        - Users
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login successful
+        401:
+          description: Invalid credentials
+  
+  /users/{id}/activity:
+    get:
+      tags:
+        - Users
+      summary: Get recent activity for a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Recent activity for the user.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [photo_uploaded, comment, like]
+                    message:
+                      type: string
+                    timestamp:
+                      type: string
+                      format: date-time
+        404:
+          description: User not found.
+
+  /workshops:
+    get:
+      tags:
+        - Workshops
+      summary: Retrieve all workshops
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          description: Number of workshops per page
+          schema:
+            type: integer
+        - name: search
+          in: query
+          description: Search workshops by title
+          schema:
+            type: string
+      responses:
+        200:
+          description: A list of workshops
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  page_size:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Workshop'
+    post:
+      tags:
+        - Workshops
+      summary: Create a new workshop
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workshop'
+      responses:
+        201:
+          description: Workshop successfully created
+        400:
+          description: Invalid input
+
+  /workshops/{id}/attendees:
+    post:
+      tags:
+        - Workshops
+      summary: Register a user as an attendee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: ID of the user to register.
+      responses:
+        201:
+          description: User successfully registered.
+        404:
+          description: Workshop or user not found.
+  
+  /workshops/{id}/stats:
+    get:
+      tags:
+        - Workshops
+      summary: Get statistics for a workshop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Statistics for the workshop.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_photos:
+                    type: integer
+                  total_comments:
+                    type: integer
+                  total_attendees:
+                    type: integer
+        404:
+          description: Workshop not found.
+
+  
+  /workshops/{id}/favorite:
+    post:
+      tags:
+        - Workshops
+      summary: Mark a workshop as favorite
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Workshop marked as favorite.
+        404:
+          description: Workshop not found.
+
+
+  /workshops/{id}:
+    get:
+      tags:
+        - Workshops
+      summary: Retrieve details of a workshop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Workshop details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workshop'
+        404:
+          description: Workshop not found
+    put:
+      tags:
+        - Workshops
+      summary: Update a workshop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workshop'
+      responses:
+        200:
+          description: Workshop successfully updated
+        400:
+          description: Invalid input
+        404:
+          description: Workshop not found
+    delete:
+      tags:
+        - Workshops
+      summary: Delete a workshop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Workshop successfully deleted
+        404:
+          description: Workshop not found
+
+  /workshops/{id}/attendees:
+    get:
+      tags:
+        - Workshops
+      summary: Retrieve attendees of a workshop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A list of attendees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        404:
+          description: Workshop not found
+
+  /workshops/{id}/photos:
+    post:
+      tags:
+        - Photos
+      summary: Upload photos for workshop description
+      description: Allows the creator of a workshop to upload between 1 and 5 photos for its description.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the workshop.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                photos:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: List of photos to upload (1-5 photos).
+      responses:
+        201:
+          description: Photos successfully uploaded.
+        400:
+          description: Invalid input or limit exceeded (max 5 photos).
+        403:
+          description: Forbidden. Only the workshop creator can upload photos.
+        404:
+          description: Workshop not found.
+
+  /workshops/{id}/photos/{photo_id}:
+    delete:
+      tags:
+        - Photos
+      summary: Delete a workshop description photo
+      description: Allows the creator of a workshop to delete one of its description photos.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the workshop.
+          schema:
+            type: integer
+        - name: photo_id
+          in: path
+          required: true
+          description: ID of the photo to delete.
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Photo successfully deleted.
+        403:
+          description: Forbidden. Only the workshop creator can delete photos.
+        404:
+          description: Photo or workshop not found.
+
+  /workshops/{id}/attendee-photos:
+    post:
+      tags:
+        - Photos
+      summary: Upload photos by attendees
+      description: Allows attendees of a workshop to upload photos only on the day of the workshop.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the workshop.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                photos:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: List of photos to upload.
+      responses:
+        201:
+          description: Photos successfully uploaded.
+        400:
+          description: Invalid input or upload not allowed on this date.
+        403:
+          description: Forbidden. Only registered attendees can upload photos.
+        404:
+          description: Workshop not found.
+
+    get:
+      tags:
+        - Photos
+      summary: Get photos uploaded by attendees
+      description: Retrieves a list of photos uploaded by attendees for a specific workshop.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the workshop.
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A list of photos uploaded by attendees.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+        403:
+          description: Forbidden. Only attendees and the creator can view these photos.
+        404:
+          description: Workshop not found.
+
+  /photos/{photo_id}/like:
+    post:
+      tags:
+        - Photos
+      summary: Like a photo
+      description: Allows a user to like a photo uploaded by attendees.
+      parameters:
+        - name: photo_id
+          in: path
+          required: true
+          description: ID of the photo to like.
+          schema:
+            type: integer
+      responses:
+        201:
+          description: Photo successfully liked.
+        403:
+          description: Forbidden. Only attendees can like photos.
+        404:
+          description: Photo not found.
+
+    delete:
+      tags:
+        - Photos
+      summary: Unlike a photo
+      description: Allows a user to remove their like from a photo uploaded by attendees.
+      parameters:
+        - name: photo_id
+          in: path
+          required: true
+          description: ID of the photo to unlike.
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Like successfully removed.
+        403:
+          description: Forbidden. Only attendees can unlike photos.
+        404:
+          description: Photo not found.
+
+  /photos/{photo_id}:
+    get:
+      tags:
+        - Photos
+      summary: Get details of a photo
+      description: Retrieves details of a specific photo, including likes and associated comments.
+      parameters:
+        - name: photo_id
+          in: path
+          required: true
+          description: ID of the photo.
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Photo details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        404:
+          description: Photo not found.
+  
+  /photos/{photo_id}/report:
+    post:
+      tags:
+        - Photos
+      summary: Report a photo
+      parameters:
+        - name: photo_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Reason for reporting the photo.
+      responses:
+        200:
+          description: Photo successfully reported.
+        404:
+          description: Photo not found.
+
+
+  /users/{id}/photos:
+    delete:
+      tags:
+        - Photos
+      summary: Delete all photos uploaded by a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: All photos deleted.
+
+
+  /notifications/{user_id}:
+    get:
+      tags:
+        - Notifications
+      summary: Get notifications for a user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+
+  /notifications/{id}/mark-as-read:
+    post:
+      tags:
+        - Notifications
+      summary: Mark a notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Notification marked as read
+        404:
+          description: Notification not found
+
+  /notifications/mark-all-as-read:
+    post:
+      tags:
+        - Notifications
+      summary: Mark all notifications as read
+      responses:
+        200:
+          description: All notifications marked as read.
+
+  /notifications/workshops/{workshop_id}:
+    post:
+      tags:
+        - Notifications
+      summary: Create a notification for workshop attendees
+      parameters:
+        - name: workshop_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      responses:
+        201:
+          description: Notifications created successfully
+        404:
+          description: Workshop not found
+
+  /photoss/{id}/comments:
+    get:
+      tags:
+        - Comments
+      summary: Get comments for a photo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+    post:
+      tags:
+        - Comments
+      summary: Create a comment on a photo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+      responses:
+        201:
+          description: Comment created successfully
+        404:
+          description: Photo not found
+
+  /comments/{id}:
+    put:
+      tags:
+        - Comments
+      summary: Update a comment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentUpdate'
+      responses:
+        200:
+          description: Comment updated successfully
+        404:
+          description: Comment not found
+    delete:
+      tags:
+        - Comments
+      summary: Delete a comment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        204:
+          description: Comment deleted successfully
+        404:
+          description: Comment not found
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+          maxLength: 255
+          example: user@example.com
+        password:
+          type: string
+        role:
+          type: string
+          enum:
+            - assistant
+            - creator
+        bio:
+          type: string
+        profile_picture:
+          type: string
+          format: uri
+
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        bio:
+          type: string
+        profile_picture:
+          type: string
+          format: uri
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        message:
+          type: string
+        type:
+          type: string
+        workshop_id:
+          type: integer
+        is_read:
+          type: boolean
+
+    Workshop:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+        location:
+          type: string
+        image:
+          type: string
+          format: uri
+        creator_id:
+          type: integer
+        max_capacity:
+          type: integer
+        archived:
+          type: boolean
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        photo_id:
+          type: integer
+        user_id:
+          type: integer
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CommentCreate:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        content:
+          type: string
+
+    CommentUpdate:
+      type: object
+      properties:
+        content:
+          type: string
+          
+    Photo:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the photo.
+        url:
+          type: string
+          format: uri
+          description: URL of the photo.
+        uploaded_by:
+          type: integer
+          description: ID of the user who uploaded the photo.
+        workshop_id:
+          type: integer
+          description: ID of the workshop to which the photo belongs.
+        type:
+          type: string
+          enum:
+            - description
+            - attendee
+          description: Type of the photo.
+        likes_count:
+          type: integer
+          description: Number of likes on the photo.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the photo was uploaded.
+
+    ApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Response message.
+        data:
+          type: object
+          nullable: true
+          description: Response data (if applicable).
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message.
+        code:
+          type: integer
+          description: HTTP status code.

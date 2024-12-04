@@ -7,11 +7,12 @@ services:
     image: crafo-postgres:15.10-alpine
     container_name: crafo_postgres
     ports:
-      - "5432:5432"
+      - "5432:5432"  # Exponer el puerto PostgreSQL
     env_file:
-      - .env
+      - .env         # Cargar las variables de entorno desde el archivo .env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data  # Volumen para persistencia de datos
 
 volumes:
   postgres_data:
+    driver: local  # Usar el controlador local para persistencia
