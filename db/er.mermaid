@@ -1,0 +1,68 @@
+erDiagram
+    USUARIOS {
+        int id PK
+        string name
+        string email
+        string password
+        string role
+        string bio
+        string profile_picture
+        datetime created_at
+        datetime updated_at
+    }
+    TALLERES {
+        int id PK
+        string title
+        text description
+        datetime date
+        string location
+        string image
+        int creator_id FK
+        int max_capacity
+        datetime created_at
+        datetime updated_at
+    }
+    FOTOS {
+        int id PK
+        string url
+        int uploaded_by FK
+        int workshop_id FK
+        int likes_count
+        datetime created_at
+    }
+    ASISTENTES {
+        int id PK
+        int user_id FK
+        int workshop_id FK
+        datetime created_at
+    }
+    COMENTARIOS {
+        int id PK
+        int photo_id FK
+        int user_id FK
+        text content
+        datetime created_at
+    }
+    NOTIFICACIONES {
+        int id PK
+        int user_id FK
+        string type
+        string message
+        int workshop_id FK
+        int photo_id FK
+        datetime created_at
+        boolean is_read
+    }
+
+    USUARIOS ||--o{ TALLERES : "creates"
+    USUARIOS ||--o{ FOTOS : "uploads"
+    USUARIOS ||--o{ ASISTENTES : "enrolls in"
+    USUARIOS ||--o{ COMENTARIOS : "writes"
+    USUARIOS ||--o{ NOTIFICACIONES : "receives"
+
+    TALLERES ||--o{ FOTOS : "has"
+    TALLERES ||--o{ NOTIFICACIONES : "generates"
+    TALLERES ||--o{ ASISTENTES : "includes"
+
+    FOTOS ||--o{ COMENTARIOS : "has"
+    FOTOS ||--o{ NOTIFICACIONES : "generates"

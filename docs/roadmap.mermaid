@@ -1,0 +1,30 @@
+gantt
+    title Crafo API Development Roadmap
+    dateFormat  YYYY-MM-DD
+    section Phase 1: System and Users
+    Health Check (/health)                  :done, health, 2024-12-01, 1d
+    User Registration (/users)              :active, users_reg, 2024-12-02, 2d
+    User Login (/users/login)               :users_login, 2024-12-04, 1d
+    User Roles (/roles)                     :roles, 2024-12-05, 1d
+    Update/Delete Users (/users/{id})       :users_update, 2024-12-06, 2d
+
+    section Phase 2: Workshop Management
+    Create Workshops (/workshops)           :active, workshops_create, 2024-12-08, 2d
+    Retrieve Workshops (/workshops)         :workshops_list, 2024-12-10, 2d
+    Workshop Details (/workshops/{id})      :workshops_detail, 2024-12-12, 1d
+    Manage Attendees (/workshops/{id}/attendees) :workshops_attendees, 2024-12-13, 2d
+
+    section Phase 3: Photos
+    Upload Description Photos (/workshops/{id}/photos)  :photos_upload, 2024-12-15, 2d
+    Manage Attendee Photos (/workshops/{id}/attendee-photos) :photos_attendee, 2024-12-17, 3d
+    Photo Details and Likes (/photos/{photo_id})        :photos_details, 2024-12-20, 2d
+
+    section Phase 4: Notifications
+    Get Notifications (/notifications/{user_id})       :notifs_get, 2024-12-22, 2d
+    Create Notifications (/notifications/workshops/{workshop_id}) :notifs_create, 2024-12-24, 2d
+    Mark Notifications as Read (/notifications/{id}/mark-as-read) :notifs_read, 2024-12-26, 1d
+
+    section Phase 5: Comments and Finalization
+    Manage Comments (/photos/{id}/comments)            :comments_manage, 2024-12-27, 2d
+    Test and Integrate All Endpoints                   :integration_test, 2024-12-29, 3d
+    Final Documentation and Deployment                 :deploy_docs, 2025-01-01, 2d
